@@ -1,2 +1,6 @@
 venv/
 Books.csv
+
+.env
+
+data/
