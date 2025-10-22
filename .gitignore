@@ -4,3 +4,5 @@ Books.csv
 .env
 
 data/
+
+embeddings
