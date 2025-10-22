@@ -10,7 +10,7 @@ def create_dashboard(db_books):
     categories = ["All"] + sorted(pd.read_csv("data/books_with_emotions.csv")["simple_categories"].unique())
     tones = ["All"] + ["Happy", "Surprising", "Angry", "Suspenseful", "Sad"]
 
-    with gr.Blocks(theme=gr.themes.Glass()) as dashboard:
+    with gr.Blocks() as dashboard:
         gr.Markdown("# Semantic book recommender")
 
         with gr.Row():
@@ -23,7 +23,10 @@ def create_dashboard(db_books):
         output = gr.Gallery(label="Recommended books", columns=8, rows=2)
 
         # Correct the click function call to match the signature
-        submit_button.click(fn=recommend_books, inputs=[user_query, category_dropdown, tone_dropdown, db_books], outputs=output)
+        def recommend_wrapper(query, category, tone):
+            return recommend_books(query, category, tone, db_books)
+        
+        submit_button.click(fn=recommend_wrapper, inputs=[user_query, category_dropdown, tone_dropdown], outputs=output)
 
     return dashboard
 

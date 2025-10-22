@@ -26,20 +26,28 @@ def retrieve_semantic_recommendations(db_books, query, books, category=None, ton
     books_list = [int(rec.page_content.strip('"').split()[0]) for rec in recs]
     book_recs = books[books["isbn13"].isin(books_list)].head(initial_top_k)
 
-    if category != "All":
-        book_recs = book_recs[book_recs["simple_categories"] == category].head(final_top_k)
+    # Filter by category if specified and not "All"
+    if category and category != "All":
+        filtered_recs = book_recs[book_recs["simple_categories"] == category]
+        # If filtering results in empty DataFrame, keep original recommendations
+        if not filtered_recs.empty:
+            book_recs = filtered_recs.head(final_top_k)
+        else:
+            book_recs = book_recs.head(final_top_k)
     else:
         book_recs = book_recs.head(final_top_k)
 
-    if tone == "Happy":
-        book_recs.sort_values(by="joy", ascending=False, inplace=True)
-    elif tone == "Surprising":
-        book_recs.sort_values(by="surprise", ascending=False, inplace=True)
-    elif tone == "Angry":
-        book_recs.sort_values(by="anger", ascending=False, inplace=True)
-    elif tone == "Suspenseful":
-        book_recs.sort_values(by="fear", ascending=False, inplace=True)
-    elif tone == "Sad":
-        book_recs.sort_values(by="sadness", ascending=False, inplace=True)
+    # Sort by tone if specified and not "All"
+    if tone and tone != "All":
+        if tone == "Happy":
+            book_recs = book_recs.sort_values(by="joy", ascending=False)
+        elif tone == "Surprising":
+            book_recs = book_recs.sort_values(by="surprise", ascending=False)
+        elif tone == "Angry":
+            book_recs = book_recs.sort_values(by="anger", ascending=False)
+        elif tone == "Suspenseful":
+            book_recs = book_recs.sort_values(by="fear", ascending=False)
+        elif tone == "Sad":
+            book_recs = book_recs.sort_values(by="sadness", ascending=False)
 
     return book_recs
